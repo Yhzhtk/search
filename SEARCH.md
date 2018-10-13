@@ -293,8 +293,7 @@ indexes）
 1. GAP -> 可变字节码(Variable Byte )
 2. 可变长编码
 3. 一元编码(Unary code) 
-数n用n个1后面加个0表示
-• 3的一元编码为1110
+数n用n个1后面加个0表示 • 3的一元编码为1110
 
 4. Y编码
 ![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/c338f5e25e16f0c9387b4ed44d0eed15.png)
