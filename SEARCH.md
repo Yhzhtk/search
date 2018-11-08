@@ -241,6 +241,41 @@ a
 
 ### LSM思想
 
+LSM (Log Structured Merge Tree)，最早是谷歌的 “BigTable” 提出来的，目标是保证写入性能，同时又能支持较高效率的检索，在很多 NoSQL 中都有使用，Lucene 也是使用 LSM 思想来写入。
+
+普通的B+树增加记录可能需要执行 seek+update 操作，这需要大量磁盘寻道移动磁头。而 LSM 采用记录在文件末尾，顺序写入减少移动磁头/寻道，执行效率高于 B+树。具体 LSM 的原理是什么呢？
+
+为了保持磁盘的IO效率，lucene避免对索引文件的直接修改，所有的索引文件一旦生成，就是只读，不能被改变的。其操作过程如下：
+
+1. 在内存中保存新增的索引,  内存缓存（也就是memtable）;
+2. 内存中的索引数量达到一定阈值时，触发写操作，将这部分数据批量写入新文件，我们称为segment；也就是 sstable文件
+3. 新增的segment生成后，不能被修改；
+4. update操作和delete操作不会立即导致原有的数据被修改或者删除;
+5. 最终得到大量的 segment，为了减少资源占用，也提高检索效率，会定期的将这些小的 segment 合并成大的 segment，由于map中的数据都是排好序的，所以合并也不会有随机写操作；
+6. 通过merge，还可以把update和delete操作真正生效，删除多余的数据，节省空间。
+
+合并的过程：
+
+Basic Compaction 
+
+每个文件固定N个数量，超过N，则新建一个sstable；当sstable数大于M，则合并一个大sstable；当大sstable的数量大于M，则合并一个更大的sstable文件，依次类推。
+
+![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/a90773123c24e2a9bf8e2738d28bacff.png)
+
+但是，这会出现一个问题，就是大量的文件被创建，在最坏的情况下，所有的文件都要搜索。
+
+Levelled Compaction
+
+像 LevelDB 和 Cassandra解决这个问题的方法是：实现了一个分层的，而不是根据文件大小来执行合并操作。
+
+1. 每层维护指定数量的文件，保证不让 key 重叠，查找一个 key 只会查找一个 key；
+2. 每次文件只会被合并到上一层的一个文件。当一层的文件数满足特定个数时，合并到上一层。
+
+
+所以， LSM 是日志和传统的单文件索引（B+ tree，Hash Index）的中立，他提供一个机制来管理更小的独立的索引文件(sstable)。
+
+通过管理一组索引文件而不是单一的索引文件，LSM 将B+树等结构昂贵的随机IO变的更快，而代价就是读操作要处理大量的索引文件(sstable)而不是一个，另外还是一些IO被合并操作消耗。
+
 ### 倒排链
 
 ### Doc Values
