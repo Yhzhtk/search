@@ -210,6 +210,7 @@ BM25 通过使用不同的语素分析方法、语素权重判定方法，以及
 即最后天安门的4位 Geo Hash 为 “WX4G”，如果需要经度更准确，在对应的经纬度编码粒度再往下追溯即可。
 
 附：Base32 编码图
+
 ![image.png](/blog/img/base_32.png)
 
 ### Geo Hash 如何用于地理搜索？
@@ -400,15 +401,15 @@ IndexSorting 之所以可以优化性能，是因为可以提前中断以及提�
 
 **附：进一步阅读**
 
-http://lucene.apache.org/
-https://wiki.apache.org/lucene-java/FrontPage
-https://zhuanlan.zhihu.com/p/35814539
-http://www.runoob.com/java/java-bitset-class.html
-https://www.cnblogs.com/skycore/p/5093257.html
-https://www.cnblogs.com/LBSer/p/4119841.html
-https://blog.csdn.net/zhufenglonglove/article/details/51700898
-https://www.jianshu.com/p/1e498888f505
-https://www.atatech.org/articles/123829
-https://www.atatech.org/articles/78716
-http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex/
-https://www.jianshu.com/p/69d56f9c0576
+* http://lucene.apache.org/
+* https://wiki.apache.org/lucene-java/FrontPage
+* https://zhuanlan.zhihu.com/p/35814539
+* http://www.runoob.com/java/java-bitset-class.html
+* https://www.cnblogs.com/skycore/p/5093257.html
+* https://www.cnblogs.com/LBSer/p/4119841.html
+* https://blog.csdn.net/zhufenglonglove/article/details/51700898
+* https://www.jianshu.com/p/1e498888f505
+* https://www.atatech.org/articles/123829
+* https://www.atatech.org/articles/78716
+* http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex/
+* https://www.jianshu.com/p/69d56f9c0576
