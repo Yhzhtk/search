@@ -22,7 +22,7 @@ Lucene 是非常出名且高效的全文检索工具包，ES 和 Solr 底层都�
 
 ### 使用搜索引擎
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/c759727eee9f7d21f0533fe2c0c54860.png)
+![image.png](/blog/img/search_process.png)
 
 答案是搜索，会事先 build 一个倒排索引，通过词法语法分析、分词、构建词典、构建倒排表、压缩优化等操作构建一个索引，查询时通过词典能快速拿到结果。这既能解决全文检索的问题，又能解决了SQL查询速度慢的问题。
 
@@ -134,7 +134,7 @@ Lucene 是非常出名且高效的全文检索工具包，ES 和 Solr 底层都�
 
 ### 存储结构
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/e508a8c0acaa9c8c6dd54c091084d081.png)
+![image.png](/blog/img/store_structure.png)
 
 以 Lucene 为例，简单说明一下 Lucene 的存储结构。从大到小是Index -> Segment -> Doc -> Field  -> Term，类比 MySQL 为 Database -> Table -> Record -> Field -> Value。
 
@@ -161,13 +161,13 @@ TF-IDF 怎么影响搜索排序，举一个实际例子来解释：
 BM25算法，通常用来作搜索相关性平分。一句话概况其主要思想：对Query进行语素解析，生成语素qi；然后，对于每个搜索结果D，计算每个语素qi与D的相关性得分，最后，将qi相对于D的相关性得分进行加权求和，从而得到Query与D的相关性得分。
 BM25算法的一般性公式如下：
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/de31a9cc42942cef7a49256b03fc0cc8.png)
+![image.png](/blog/img/score_bm25_1.png)
 
 其中，Q表示Query，qi表示Q解析之后的一个语素（对中文而言，我们可以把对Query的分词作为语素分析，每个词看成语素qi。）；d表示一个搜索结果文档；Wi表示语素qi的权重；R(qi，d)表示语素qi与文档d的相关性得分。
 
 其中 Wi 通常使用 IDF 来表达，R 使用 TF 来表达；综上，BM25算法的相关性得分公式可总结为：
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/ef923be8c1f9f576dd752a2b528199d9.png)
+![image.png](/blog/img/score_bm25_2.png)
 
 BM25 通过使用不同的语素分析方法、语素权重判定方法，以及语素与文档的相关性判定方法，我们可以衍生出不同的搜索相关性得分计算方法，这就为我们设计算法提供了较大的灵活性。
 
@@ -177,7 +177,7 @@ BM25 通过使用不同的语素分析方法、语素权重判定方法，以及
 
 在数据库中可以通过暴力计算、矩形过滤、以及B树对经度和维度建索引，但这性能仍然很慢(可参考 [为什么需要空间索引](https://www.cnblogs.com/LBSer/p/3392491.html) )。搜索里用了一个很巧妙的方法，Geo Hash。
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/14dd678172ea1b6bbb21d07d4bb8dbdd.png)
+![image.png](/blog/img/geo_all.png)
 
 如上图，表示根据 GeoHash 对北京几个区域生成的字符串，有几个特点：
 
@@ -210,13 +210,13 @@ BM25 通过使用不同的语素分析方法、语素权重判定方法，以及
 即最后天安门的4位 Geo Hash 为 “WX4G”，如果需要经度更准确，在对应的经纬度编码粒度再往下追溯即可。
 
 附：Base32 编码图
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/69704e3b04fa551122e30990d38097d4.png)
+![image.png](/blog/img/base_32.png)
 
 ### Geo Hash 如何用于地理搜索？
 
 举个例子，搜索天安门附近 200 米的景点，如下是天安门附近的Geo编码
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/62c45d1dbad831ef4e92fcb4a6d7efbf.png)
+![image.png](/blog/img/geohash_tiananmen.png)
 
 搜索过程如下：
 
@@ -229,13 +229,13 @@ BM25 通过使用不同的语素分析方法、语素权重判定方法，以及
 
 ### Geo Hash 依据的数学原理
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/ef3c2dfec575f690e41ff7523a8311bf.png)
+![image.png](/blog/img/peano.png)
 
 如图所示，我们将二进制编码的结果填写到空间中，当将空间划分为四块时候，编码的顺序分别是左下角00，左上角01，右下脚10，右上角11，也就是类似于Z的曲线。当我们递归的将各个块分解成更小的子块时，编码的顺序是自相似的（分形），每一个子快也形成Z曲线，这种类型的曲线被称为Peano空间填充曲线。
 
 这种类型的空间填充曲线的优点是将二维空间转换成一维曲线（事实上是分形维），对大部分而言，编码相似的距离也相近， 但Peano空间填充曲线最大的缺点就是突变性，有些编码相邻但距离却相差很远，比如0111与1000，编码是相邻的，但距离相差很大。 
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/f5cf54104ab84e83ca8b7a45b793a9cd.png)
+![image.png](/blog/img/all_curve.png)
 
 除Peano空间填充曲线外，还有很多空间填充曲线，如图所示，其中效果公认较好是Hilbert空间填充曲线，相较于Peano曲线而言，Hilbert曲线没有较大的突变。为什么GeoHash不选择Hilbert空间填充曲线呢？可能是Peano曲线思路以及计算上比较简单吧，事实上，Peano曲线就是一种四叉树线性编码方式。 
 
@@ -262,7 +262,7 @@ Lucene的倒排索引决定，索引内容是一个可排序的字符串，如�
 
 数值Trie树，下面详细介绍
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/60dda5be0eec03eabfc07f35e40a076d.png)
+![image.png](/blog/img/number_range.png)
 
 上面说了怎么索引，那么Query呢？比如我给你一个Range Query从423-642，怎么找到那6个term呢？
 
@@ -304,7 +304,7 @@ Basic Compaction
 
 每个文件固定N个数量，超过N，则新建一个sstable；当sstable数大于M，则合并一个大sstable；当大sstable的数量大于M，则合并一个更大的sstable文件，依次类推。
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/a90773123c24e2a9bf8e2738d28bacff.png)
+![image.png](/blog/img/lsm.png)
 
 但是，这会出现一个问题，就是大量的文件被创建，在最坏的情况下，所有的文件都要搜索。
 
@@ -339,11 +339,11 @@ lucene从4开始大量使用的数据结构是FST（Finite State Transducer）�
 
 举例：对“cat”、 “deep”、 “do”、 “dog” 、“dogs” 这5个单词构建FST（注：必须已排序），结构如下：
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/325e7f5d7279c41ef2102e3f7325aea9.png)
+![image.png](/blog/img/fst1.png)
 
 当存在 value 为对应的 docId 时，如 cat/0 deep/1 do/2 dog/3 dogs/4， FST 结构图如下：
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/d41c895aad86c34c6423a24382549166.png)
+![image.png](/blog/img/fst2.png)
 
 FST 还有一个特点，就是在前缀公用的基础上，还会做一个后缀公用，目标同样是为了压缩存储空间。
 
@@ -357,7 +357,7 @@ FST 还有一个特点，就是在前缀公用的基础上，还会做一个后�
 2. 跳跃有一个固定的间隔，这个是需要建立SkipList的时候指定好，例如下图以间隔是;
 3. SkipList的层次，这个是指整个SkipList有几层
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/660f307ea296ba84ea0fdc4fee856a73.png)
+![image.png](/blog/img/skiplist.png)
 
 在什么位置设置跳表指针？
 • 设置较多的指针，较短的步长， 更多的跳跃机会
@@ -370,13 +370,13 @@ FST 还有一个特点，就是在前缀公用的基础上，还会做一个后�
 
 也叫 Block KD-tree，根据FST思路，如果查询条件非常多，需要对每个条件根据 FST 查出结果，进行求并集操作。如果是数值类型，那么潜在的 Term 可能非常多，查询销量也会很低，为了支持高效的数值类或者多维度查询，引入 BKD Tree。在一维下就是一棵二叉搜索树，在二维下是如果要查询一个区间，logN的复杂度就可以访问到叶子节点对应的倒排链。
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/b856152610032d13c6c0dd9d5fa7814c.png)
+![image.png](/blog/img/bkd_tree1.png)
 
 1. 确定切分维度，这里维度的选取顺序是数据在这个维度方法最大的维度优先。一个直接的理解就是，数据分散越开的维度，我们优先切分。
 2. 切分点的选这个维度最中间的点。
 3. 递归进行步骤1，2，我们可以设置一个阈值，点的数目少于多少后就不再切分，直到所有的点都切分好停止。
 
-![image.png](http://ata2-img.cn-hangzhou.img-pub.aliyun-inc.com/6ae30173c802091b6b27c7803cfbc35e.png)
+![image.png](/blog/img/bkd_tree2.png)
 
 ## BitSet 过滤
 
